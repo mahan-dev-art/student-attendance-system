@@ -16,4 +16,4 @@ RUN mkdir -p /app/instance
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 2 --threads 4 --timeout 120 wsgi:app"]
+CMD ["sh", "-c", "HOME=/tmp python -m gunicorn --bind 0.0.0.0:${PORT:-3000} --workers 1 --threads 2 --timeout 120 wsgi:app"]
