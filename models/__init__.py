@@ -1,16 +1,11 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from extensions import db, login_manager
 
-db = SQLAlchemy()
-login_manager = LoginManager()
-login_manager.login_view = "auth.login"
-login_manager.login_message = "Please sign in to continue."
-login_manager.login_message_category = "warning"
-
+# Import all models so SQLAlchemy knows about all relationships
 from models.user import User
 from models.parent import Parent
 from models.student import Student
 from models.attendance import Attendance
+
 
 @login_manager.user_loader
 def load_user(user_id):
