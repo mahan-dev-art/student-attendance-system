@@ -18,7 +18,6 @@ def create_app(config_class=Config):
     # SQLite Database
     # --------------------------------------------------
 
-    # Create a writable directory for SQLite
     database_dir = "/tmp/attendance-data"
     os.makedirs(database_dir, exist_ok=True)
 
@@ -44,38 +43,18 @@ def create_app(config_class=Config):
     # Load All Models
     # --------------------------------------------------
 
-    # IMPORTANT:
-    # Import models after the db extension has been created.
-    # This ensures SQLAlchemy knows about every model and
-    # every relationship between them.
-
     from models.user import User
     from models.parent import Parent
     from models.student import Student
     from models.attendance import Attendance
 
     # --------------------------------------------------
-    # Register Blueprints
+    # Main Route
     # --------------------------------------------------
 
-    # Keep your project's existing blueprint registrations here.
-    #
-    # Example:
-    #
-    # from routes.auth import auth_bp
-    # app.register_blueprint(auth_bp)
-    #
-    # from routes.admin import admin_bp
-    # app.register_blueprint(admin_bp)
-    #
-    # from routes.students import students_bp
-    # app.register_blueprint(students_bp)
-    #
-    # from routes.parents import parents_bp
-    # app.register_blueprint(parents_bp)
-    #
-    # from routes.api import api_bp
-    # app.register_blueprint(api_bp)
+    @app.route("/")
+    def index():
+        return "Student Attendance System is running!"
 
     # --------------------------------------------------
     # Create Database Tables
