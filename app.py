@@ -1,15 +1,9 @@
-
 import os
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+
 from config import Config
-
-# --------------------------------------------------
-# Database
-# --------------------------------------------------
-
-db = SQLAlchemy()
+from extensions import db, login_manager
 
 
 # --------------------------------------------------
@@ -20,25 +14,53 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    # --------------------------------------------------
+    # SQLite Database
+    # --------------------------------------------------
+
     # Create a writable directory for SQLite
     database_dir = "/tmp/attendance-data"
     os.makedirs(database_dir, exist_ok=True)
 
-    database_path = os.path.join(database_dir, "attendance.db")
+    database_path = os.path.join(
+        database_dir,
+        "attendance.db"
+    )
 
     app.config["SQLALCHEMY_DATABASE_URI"] = (
         "sqlite:///" + database_path
     )
+
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    # Initialize SQLAlchemy with Flask
+    # --------------------------------------------------
+    # Initialize Extensions
+    # --------------------------------------------------
+
     db.init_app(app)
+    login_manager.init_app(app)
+
+    # --------------------------------------------------
+    # Load All Models
+    # --------------------------------------------------
+
+    # IMPORTANT:
+    # Import models after the db extension has been created.
+    # This ensures SQLAlchemy knows about every model and
+    # every relationship between them.
+
+    from models.user import User
+    from models.parent import Parent
+    from models.student import Student
+    from models.attendance import Attendance
 
     # --------------------------------------------------
     # Register Blueprints
     # --------------------------------------------------
-    # Keep your project's existing blueprint imports here.
-    # Examples (only if these names exist in your project):
+
+    # Keep your project's existing blueprint registrations here.
+    #
+    # Example:
     #
     # from routes.auth import auth_bp
     # app.register_blueprint(auth_bp)
@@ -56,28 +78,10 @@ def create_app(config_class=Config):
     # app.register_blueprint(api_bp)
 
     # --------------------------------------------------
-    # Load Models and Create Tables
+    # Create Database Tables
     # --------------------------------------------------
 
     with app.app_context():
-        from models.user import User
-
-        # Import these if the files exist in your project.
-        # They must use the same db instance imported from app.
-        try:
-            from models.student import Student
-        except ImportError:
-            app.logger.warning(
-                "Student model could not be imported."
-            )
-
-        try:
-            from models.parent import Parent
-        except ImportError:
-            app.logger.warning(
-                "Parent model could not be imported."
-            )
-
         db.create_all()
 
         # --------------------------------------------------
@@ -97,6 +101,7 @@ def create_app(config_class=Config):
                     username=admin_username,
                     role="admin"
                 )
+
                 admin.set_password(admin_password)
 
                 db.session.add(admin)
