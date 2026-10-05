@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 
 from config import Config
 from extensions import db, login_manager
@@ -55,6 +55,17 @@ def create_app(config_class=Config):
     @app.route("/")
     def index():
         return "Student Attendance System is running!"
+
+    # --------------------------------------------------
+    # API Ping Route
+    # --------------------------------------------------
+
+    @app.route("/api/ping", methods=["GET"])
+    def api_ping():
+        return jsonify({
+            "success": True,
+            "message": "ESP32 API is reachable"
+        })
 
     # --------------------------------------------------
     # Create Database Tables
